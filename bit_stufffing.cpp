@@ -1,27 +1,83 @@
-string bit_stuff_sender(string data)
+#include <iostream>
+#include <string>
+using namespace std;
+
+// Sender: Bit Stuffing
+string bit_stuff(string bits)
 {
-    string stuffed;
-    int ones = 0;
+    string out = "";
+    int count = 0;
 
-    for (int i = 0; i < data.size(); i++)
+    for (int i = 0; i < bits.length(); i++)
     {
-        stuffed.push_back(data[i]);
+        out += bits[i];
 
-        if (data[i] == '1')
+        if (bits[i] == '1')
         {
-            ones++;
+            count++;
 
-            if (ones == 5)
+            if (count == 5)
             {
-                stuffed.push_back('0');
-                ones = 0;
+                out += '0';
+                count = 0;
             }
         }
         else
         {
-            ones = 0;
+            count = 0;
         }
     }
 
-    return stuffed;
+    return "01111110" + out + "01111110";
+}
+
+// Receiver: Bit De-stuffing
+string bit_destuff(string frame)
+{
+    string data = frame.substr(8, frame.length() - 16);
+
+    string out = "";
+    int count = 0;
+
+    for (int i = 0; i < data.length(); i++)
+    {
+        out += data[i];
+
+        if (data[i] == '1')
+        {
+            count++;
+
+            if (count == 5)
+            {
+                i++; // Skip stuffed 0
+                count = 0;
+            }
+        }
+        else
+        {
+            count = 0;
+        }
+    }
+
+    return out;
+}
+
+int main()
+{
+    string bits;
+
+    cout << "Enter bit string: ";
+    cin >> bits;
+
+    // Sender
+    string frame = bit_stuff(bits);
+
+    cout << "\nStuffed Frame: " << frame << endl;
+
+    // Receiver
+    string received = bit_destuff(frame);
+
+    cout << "After De-stuffing: " << received << endl;
+
+    return 0;
 }
